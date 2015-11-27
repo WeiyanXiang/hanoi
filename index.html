@@ -1,0 +1,260 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+<meta name="Author" CONTENT="Romuald Zylla">
+<meta name="description" content=" THE TOWERS OF HANOI PUZZLE
+ In this puzzle you have 3 towers; on one tower are disks of different sizes.
+ The object of this puzzle is to move all the disks, one at a time, to another
+ tower such that you never place a larger disk on top of a smaller disk.
+ This page design  and JavaScript code used is copyrighted by R.J.Zylla
+ Towers of Hanoi is sometimes used as an intelligence test.. ">
+<meta name="keywords" content=" Towers of Hanoi, disks of different sizes,
+ non-recursive solution algorithm, iterative algorithm, javascript, 
+ computer intelligence, user interface, click, mouse, shuffle disks, 
+ demo mode, Windows, PC, help mode, easy for kids and advanced puzzle,
+ Towers of Hanoi is sometimes used as an intelligence test.. ">
+<title>Towers of Hanoi Puzzle - Five Disks</title>
+
+<style type="text/css">
+p, table, td, th, div, form, li, ul, ol, center, dd, dt, blockquote 
+  {font-family: Verdana, Arial, sans-serif; font-size: 14px;}
+</style>
+
+<script language="JavaScript" type="text/javascript">
+<!--
+var noDisks=5;
+
+var nd1=noDisks+1,  noImgs=(noDisks+1)*3;
+var peg = 0,  firstPick=0,  secondPick=0;
+var i=0,  j=0,  noMoves=0,  time=0;
+var what= 0,  where=0,   ontop=0;
+var aa  = new Array(); aa[3*nd1+1]=nd1; aa[3*nd1+2]=nd1; aa[3*nd1+3]=nd1;
+var bb  = new Array(0, 1,nd1,nd1 );
+var src = new Array(); src[nd1]=3;
+var dst = new Array(); dst[nd1]=3;
+var minMoves = Math.pow(2,noDisks) - 1;
+var finished = false;
+var started = false;
+var helped  = 0;
+
+function Sorry() {
+ alert("Sorry, this game needs to run on a browser \n which supports the image object.");
+}
+
+function move(peg) {
+if (document.images) {
+  if (firstPick==0) {
+  firstPick=peg;
+  where= bb[firstPick];
+  what = aa[3*where+firstPick];
+
+  if (where<=noDisks) {
+    if (started==false) {
+    started=true;  time=nowTime();  //time of the first click
+      }
+    document.images[firstPick].src=document.images[3*where+firstPick].src;
+    document.images[3*where+firstPick].src="h0.gif";
+    aa[firstPick] = what;
+    aa[3*where+firstPick] = 0;
+    bb[firstPick] =bb[firstPick]+1;
+    updateInfo("   Now click where you want it to move. ");
+    }
+  else { firstPick=0;
+    updateInfo("   Nothing to pick here ! ");
+    if (finished) updateInfo("   Game already finished ! Use other buttons.");
+    }
+  }
+  else {  secondPick=peg;
+    ontop =aa[3*bb[secondPick]+secondPick];
+    endLev=bb[secondPick]-1;
+    if (what>ontop) {
+    alert("You want to put bigger disk [__"+what+"__] \n on the top of the smaller one [_"+ ontop+ "_] !" );
+    } // then
+  else {
+    document.images[secondPick].src=document.images[firstPick].src;
+    if (firstPick!=secondPick) {
+      document.images[firstPick].src="h0.gif";
+      noMoves = noMoves+1;
+      }
+    document.images[endLev*3+secondPick].src=document.images[secondPick].src;
+    document.images[secondPick].src="h0.gif";
+    aa[endLev*3+secondPick]=aa[firstPick];
+    aa[firstPick] = 0;
+    bb[secondPick]=bb[secondPick]-1;
+    updateInfo("   Okay, click the peg from which to move a disk. ");
+    firstPick=0;
+    if ((aa[2*3]==1) && (finished!=true)) {
+      updateInfo("      Okay, game finished. Let\'s try next one  :) ");
+      finished=true;  Congratulations()
+      }
+    } // else
+       }
+    }
+    else  Sorry();
+} // move
+
+function Recognize() {
+var i=0, j=0, wht=0;
+  for (i=0; i<=noDisks; i++) {
+    for (j=1; j<=3; j++) {
+      wht=aa[3*i+j];
+      if (wht!=0)  src[wht]=j;
+    }
+  }
+} // fun
+
+function CalcMinMoves() {
+  minMoves=0;
+  Recognize();
+  for (i=noDisks; i>=1; i--) {
+    if (src[i+1] == dst[i+1])
+   dst[i]=src[i+1]
+      else dst[i]=6-src[i+1]-dst[i+1];
+    if (src[i] != dst[i]) 
+      minMoves=minMoves + Math.pow(2,i-1);
+  }
+} // fun
+
+function initArray() {
+  bb[1]=1;  bb[2]=noDisks+1;  bb[3]=noDisks+1;  noMoves=0;
+  if (document.images) { document.images[0].src = "han.gif";
+    for (i=0; i<=noDisks; i++) {
+      aa[i*3+1]=i;  document.images[i*3+1].src = "h" + i + ".gif";
+      aa[i*3+2]=0;  document.images[i*3+2].src = "h0.gif";
+      aa[i*3+3]=0;  document.images[i*3+3].src = "h0.gif";
+    }
+  }
+  else  Sorry();
+  CalcMinMoves();  finished=false;  started = false;  helped=0;
+  updateInfo('       Click a peg to move a disk!     ');
+}
+
+function shuffleArray() {
+  if (document.images) {
+    for (i=1; i<=noImgs; i++) { aa[i]=0;  document.images[i].src = "h0.gif" };
+    for (i=1; i<=3;   i++) { bb[i]=noDisks+1 };
+    noMoves=0;
+    for (i=1; i<=noDisks; i++) {
+      what=noDisks+1-i;  peg=Math.floor(Math.random()*3)+1;
+      if ((i==1) && (peg==3)) {peg=1};
+      bb[peg]=bb[peg]-1;
+      where=3*bb[peg]+peg;
+      aa[where]=what;
+    document.images[where].src = "h" + what + ".gif";
+    }
+  }
+  else  Sorry();
+  CalcMinMoves();  finished=false;  started = false;  helped=0;
+  updateInfo('       Click a peg to move a disk!     ');
+}
+
+function nowTime() {
+var  start = new Date();
+  return (start.getTime() / 1000);
+}
+
+function Congratulations() {
+var conText = "";
+  atime = parseInt(nowTime() - time);
+  if (noMoves>minMoves+1)
+  conText = "however\n  You\'ve made "+ (noMoves-minMoves) + " wrong moves." 
+  if (noMoves==minMoves+1)
+  conText = "and\n  You\'ve made only one wrong move." 
+  if (helped>2)
+  conText = "however\n  I\'ve helped you with "+ (helped) + " moves." 
+  if (atime>=3*minMoves)
+  conText = conText + "\n  You click to slow.";
+  if (atime<minMoves)
+  conText = conText + "\n  You click with " + (Math.round((2*noMoves-helped)*60/atime) ) + " mickeys per minute.";
+  if (conText=="") conText = "\n  You\'ve made it in " + noMoves +" moves!\n"
+  else conText = "\n  You\'ve finished it well, " + conText;
+  if ((noMoves==minMoves) && (atime<=2*minMoves) && (helped<=1))
+  conText = "\n C o n g r a t u l a t i o n s !" +
+  "\n  You\'ve made it in a minimum of  " + minMoves + " moves."
+  "\n  and in a very good time = " + atime + " seconds" +
+  "\n  You are the MASTER of that game.";
+  alert( conText );
+  return true
+}
+
+function updateInfo( information ) {
+  document.forms[0].info1.value = information;
+  return true
+}
+
+function oneMove() {
+var from=1, to=1;
+  Recognize();  // update positions info
+  for (i=noDisks; i>=1; i--) {
+    if (src[i+1] == dst[i+1])
+   dst[i] = src[i+1]
+      else dst[i] = 6-src[i+1]-dst[i+1];
+    if (src[i] != dst[i]) {
+   from=src[i];  to=dst[i]
+    }
+  }
+  if (firstPick != 0) { // disk raised, check if the good one
+    if (firstPick != from) { move(firstPick);  move(from); }
+  }
+  else  move(from);
+  move(to);
+  if (from != to) helped = helped+1;
+  return true
+}
+
+
+// --></script>
+
+</head>
+
+<body bgcolor="#6699cc" text="#000000" link="#ffffff" vlink="#800080" alink="#ff0000" 
+onLoad="if(!document.images) alert('This game does not work \n in this browser version'); updateInfo('       Click a peg to move a disk!     '); initArray()">
+
+<center><big><big>Towers of Hanoi Puzzle</big></big></center>
+
+<center><noscript><b>This puzzle is written in JavaScript 1.1 <br>
+Netscape 3.02,  MSIE 4.0 or Opera 3.x  is recommended.</b>
+</noscript></center>
+
+<center><table width=600 border=0 cellspacing=0><tr>
+<td width=170 align=right><img src="han.gif" border=0 width=140 height=60 alt="img"></td>
+<td width=430>
+Build the tower on the third peg, obeying the following rules:<br>
+&nbsp; - &nbsp; move one disk a time,<br>
+&nbsp; - &nbsp; do not stack bigger disk on smaller one.<br>
+</td></tr></table></center>
+<br>
+<center>
+<script LANGUAGE="JavaScript" type="text/javascript">
+<!--
+document.writeln("<table border='0' cellspacing='0' cellpadding='0' width='420'>");
+for (var i=0; i<=noDisks; i++) {
+document.writeln("<tr>");
+document.writeln("<td><a href='javascript:move(1)' title='' onClick='blur()'><img src='h" + i + ".gif' border=0 width=140 height=20 alt=' '><\/a><\/td>");
+document.writeln("<td><a href='javascript:move(2)' title='' onClick='blur()'><img src='h0.gif' border=0 width=140 height=20 alt=' '><\/a><\/td>");
+document.writeln("<td><a href='javascript:move(3)' title='' onClick='blur()'><img src='h0.gif' border=0 width=140 height=20 alt=' '><\/a><\/td>");
+document.writeln("<\/tr>");
+}
+
+document.writeln("<tr>");
+document.writeln("<td bgcolor='#3333cc' colspan=3 ><img src='pixel.gif' border=0 height=10 alt=''><\/td>");
+document.writeln("<\/tr><\/table>");
+document.close();
+// --></script>
+</center>
+
+<center>
+<FORM ID="info" action="" >
+<INPUT TYPE="text" NAME="info1" SIZE="60" VALUE="  .... Loading images,  please wait .... "></FORM>
+</center>
+
+<center><table cellpadding=10><tr>
+<td><form ID="init" action=""><input type=button value="Init Puzzle" onClick="initArray()"></form></td>
+<td><form ID="shuffle" action=""><input type=button value="Shuffle Disks" onClick="shuffleArray()"></form></td>
+<td><form ID="help" action=""><input type=button value="Help Me" onClick="oneMove()"></form></td>
+</tr></table></center>
+
+</body>
+</html>
